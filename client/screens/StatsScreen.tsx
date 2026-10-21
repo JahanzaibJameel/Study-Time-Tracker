@@ -25,7 +25,9 @@ export default function StatsScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
 
-  const [weeklyData, setWeeklyData] = useState<{ day: string; minutes: number }[]>([]);
+  const [weeklyData, setWeeklyData] = useState<
+    { day: string; minutes: number }[]
+  >([]);
   const [allTimeStats, setAllTimeStats] = useState({
     totalHours: 0,
     totalSessions: 0,
@@ -36,30 +38,43 @@ export default function StatsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
-    try {
-      const [weekly, stats, subjects] = await Promise.all([
-        getWeeklyStats(),
-        getAllTimeStats(),
-        getSubjects(),
-      ]);
-      setWeeklyData(weekly);
-      setAllTimeStats(stats);
-      // Sort subjects by total time and take top 5
-      const sorted = [...subjects].sort(
-        (a, b) => b.totalMinutes - a.totalMinutes
+    const [weeklyResult, statsResult, subjectsResult] = await Promise.all([
+      getWeeklyStats(),
+      getAllTimeStats(),
+      getSubjects(),
+    ]);
+
+    if (weeklyResult.ok) {
+      setWeeklyData(weeklyResult.value);
+    } else {
+      if (__DEV__)
+        console.error("Error loading weekly stats:", weeklyResult.error);
+    }
+
+    if (statsResult.ok) {
+      setAllTimeStats(statsResult.value);
+    } else {
+      if (__DEV__)
+        console.error("Error loading all-time stats:", statsResult.error);
+    }
+
+    if (subjectsResult.ok) {
+      const sorted = [...subjectsResult.value].sort(
+        (a, b) => b.totalMinutes - a.totalMinutes,
       );
       setTopSubjects(sorted.slice(0, 5));
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    } finally {
-      setIsLoading(false);
+    } else {
+      if (__DEV__)
+        console.error("Error loading subjects:", subjectsResult.error);
     }
+
+    setIsLoading(false);
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+    }, [loadData]),
   );
 
   const handleRefresh = async () => {

@@ -27,24 +27,29 @@ export default function SubjectsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
-    try {
-      const [subjectsData, settings] = await Promise.all([
-        getSubjects(),
-        getSettings(),
-      ]);
-      setSubjects(subjectsData);
-      setDailyGoal(settings.dailyGoalMinutes);
-    } catch (error) {
-      console.error("Error loading subjects:", error);
-    } finally {
-      setIsLoading(false);
+    const [subjectsResult, settingsResult] = await Promise.all([
+      getSubjects(),
+      getSettings(),
+    ]);
+
+    if (subjectsResult.ok) {
+      setSubjects(subjectsResult.value);
+    } else {
+      if (__DEV__)
+        console.error("Error loading subjects:", subjectsResult.error);
     }
+
+    if (settingsResult.ok) {
+      setDailyGoal(settingsResult.value.dailyGoalMinutes);
+    }
+
+    setIsLoading(false);
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+    }, [loadData]),
   );
 
   const handleRefresh = async () => {
@@ -55,6 +60,13 @@ export default function SubjectsScreen() {
 
   const handleStartStudy = (subject: Subject) => {
     navigation.navigate("Timer", {
+      subjectId: subject.id,
+      subjectName: subject.name,
+    });
+  };
+
+  const handleStartPomodoro = (subject: Subject) => {
+    navigation.navigate("Pomodoro", {
       subjectId: subject.id,
       subjectName: subject.name,
     });
@@ -98,6 +110,7 @@ export default function SubjectsScreen() {
           subject={item}
           dailyGoal={dailyGoal}
           onStartStudy={() => handleStartStudy(item)}
+          onStartPomodoro={() => handleStartPomodoro(item)}
         />
       )}
       ListEmptyComponent={renderEmpty}

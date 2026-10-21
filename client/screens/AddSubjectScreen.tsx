@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TextInput, Pressable } from "react-native";
+import { View, StyleSheet, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -20,17 +20,27 @@ export default function AddSubjectScreen() {
 
   const [name, setName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!name.trim()) return;
 
     setIsSaving(true);
+    setError(null);
+
     try {
-      await addSubject(name);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      navigation.goBack();
-    } catch (error) {
-      console.error("Error adding subject:", error);
+      const result = await addSubject(name);
+      if (result.ok) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        navigation.goBack();
+      } else {
+        setError(result.error.message);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to add subject";
+      setError(message);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setIsSaving(false);
@@ -59,18 +69,33 @@ export default function AddSubjectScreen() {
             {
               backgroundColor: theme.backgroundDefault,
               color: theme.text,
-              borderColor: theme.border,
+              borderColor: error ? theme.warning : theme.border,
             },
           ]}
           placeholder="e.g., Mathematics, History, Biology..."
           placeholderTextColor={theme.textSecondary}
           value={name}
-          onChangeText={setName}
+          onChangeText={(text) => {
+            setName(text);
+            if (error) setError(null);
+          }}
           autoFocus
           returnKeyType="done"
           onSubmitEditing={handleSave}
           testID="input-subject-name"
+          accessibilityLabel="Subject name input"
         />
+        {error ? (
+          <ThemedText
+            type="small"
+            style={[
+              styles.errorText,
+              { color: theme.warning, marginTop: Spacing.xs },
+            ]}
+          >
+            {error}
+          </ThemedText>
+        ) : null}
 
         <View style={styles.buttonContainer}>
           <Button
@@ -104,6 +129,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     fontSize: 16,
     borderWidth: 1,
+  },
+  errorText: {
+    fontSize: 13,
   },
   buttonContainer: {
     marginTop: Spacing.xl,

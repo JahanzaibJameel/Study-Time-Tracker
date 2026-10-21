@@ -10,16 +10,10 @@ import { CircularProgress } from "@/components/CircularProgress";
 import { StreakBadge } from "@/components/StreakBadge";
 import { SessionCard } from "@/components/SessionCard";
 import { EmptyState } from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing } from "@/constants/theme";
-import {
-  getTodaySessions,
-  getTodayTotalMinutes,
-  getStreak,
-  getSettings,
-  StudySession,
-  StreakData,
-} from "@/lib/storage";
+import { getHomeData, StudySession, StreakData } from "@/lib/storage";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -33,33 +27,29 @@ export default function HomeScreen() {
     currentStreak: 0,
     lastStudyDate: null,
   });
-  const [todaySessions, setTodaySessions] = useState<StudySession[]>([]);
+  const [todaySessions, setTodaySessions] = useState<
+    (StudySession & { subjectName: string })[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
-    try {
-      const [minutes, streakData, sessions, settings] = await Promise.all([
-        getTodayTotalMinutes(),
-        getStreak(),
-        getTodaySessions(),
-        getSettings(),
-      ]);
-      setTodayMinutes(minutes);
-      setStreak(streakData);
-      setTodaySessions(sessions.reverse());
-      setDailyGoal(settings.dailyGoalMinutes);
-    } catch (error) {
-      console.error("Error loading home data:", error);
-    } finally {
-      setIsLoading(false);
+    const result = await getHomeData();
+    if (result.ok) {
+      setTodayMinutes(result.value.todayMinutes);
+      setStreak(result.value.streak);
+      setTodaySessions(result.value.todaySessions);
+      setDailyGoal(result.value.settings.dailyGoalMinutes);
+    } else {
+      if (__DEV__) console.error("Error loading home data:", result.error);
     }
+    setIsLoading(false);
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+    }, [loadData]),
   );
 
   const handleRefresh = async () => {
@@ -78,7 +68,7 @@ export default function HomeScreen() {
 
       {todaySessions.length > 0 ? (
         <ThemedText type="h4" style={styles.sectionTitle}>
-          Today's Sessions
+          Today&apos;s Sessions
         </ThemedText>
       ) : null}
     </View>
@@ -94,12 +84,66 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
+      <View style={{ flex: 1, backgroundColor: theme.backgroundRoot }}>
       <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: theme.backgroundRoot },
-        ]}
-      />
+        style={{
+          paddingHorizontal: Spacing.lg,
+          paddingTop: headerHeight + Spacing.xl,
+          paddingBottom: tabBarHeight + Spacing.xl,
+        }}
+      >
+        {/* Header skeleton */}
+        <View style={{ marginBottom: Spacing.lg }}>
+          <View
+            style={{
+              alignItems: "center",
+              marginBottom: Spacing["2xl"],
+            }}
+          >
+            <Skeleton
+              width={200}
+              height={200}
+              borderRadius={100}
+              style={{ marginBottom: Spacing.md }}
+            />
+            <Skeleton
+              width={60}
+              height={24}
+              style={{ marginBottom: Spacing.lg }}
+            />
+          </View>
+        </View>
+
+        {/* Section title skeleton */}
+        <Skeleton
+          width={120}
+          height={20}
+          style={{
+            marginTop: Spacing.xl,
+            marginBottom: Spacing.md,
+          }}
+        />
+
+        {/* Session cards skeleton - show 3 placeholders */}
+        <View style={{ marginBottom: Spacing.xl }}>
+          <Skeleton
+            height={80}
+            width="100%"
+            style={{ marginBottom: Spacing.md }}
+          />
+          <Skeleton
+            height={80}
+            width="100%"
+            style={{ marginBottom: Spacing.md }}
+          />
+          <Skeleton
+            height={80}
+            width="100%"
+            style={{ marginBottom: Spacing.md }}
+          />
+        </View>
+      </View>
+      </View>
     );
   }
 
@@ -134,9 +178,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-  },
   content: {
     paddingHorizontal: Spacing.lg,
     flexGrow: 1,
@@ -151,5 +192,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginTop: Spacing.xl,
     marginBottom: Spacing.md,
+    fontWeight: "600",
   },
 });
