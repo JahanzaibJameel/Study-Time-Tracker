@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import Animated from "react-native-reanimated";
 
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Shadows } from "@/constants/theme";
+import { useLayoutAnimation } from "@/lib/animations";
 
 interface StatCardProps {
   icon: keyof typeof Feather.glyphMap;
@@ -16,13 +18,19 @@ interface StatCardProps {
 export function StatCard({ icon, value, label, color }: StatCardProps) {
   const { theme } = useTheme();
   const iconColor = color || theme.primary;
+  const { mount, animatedStyle } = useLayoutAnimation();
+
+  useEffect(() => {
+    mount();
+  }, [mount]);
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: theme.cardBackground },
         Shadows.small,
+        animatedStyle,
       ]}
     >
       <View style={[styles.iconContainer, { backgroundColor: iconColor }]}>
@@ -37,7 +45,7 @@ export function StatCard({ icon, value, label, color }: StatCardProps) {
       >
         {label}
       </ThemedText>
-    </View>
+    </Animated.View>
   );
 }
 
