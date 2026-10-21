@@ -2,10 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "node:http";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
 
   const httpServer = createServer(app);
-
   return httpServer;
 }
