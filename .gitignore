@@ -1,1 +1,14 @@
 node_modules
+.expo
+dist
+dist-web
+build
+*.log
+npm-debug.log*
+.DS_Store
+*.pem
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
