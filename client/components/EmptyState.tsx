@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, Image, ImageSourcePropType } from "react-native";
+import Animated from "react-native-reanimated";
 
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing } from "@/constants/theme";
+import { useLayoutAnimation } from "@/lib/animations";
+import { useFloatingAnimation } from "@/lib/animations";
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 interface EmptyStateProps {
   image: ImageSourcePropType;
@@ -13,10 +18,22 @@ interface EmptyStateProps {
 
 export function EmptyState({ image, title, subtitle }: EmptyStateProps) {
   const { theme } = useTheme();
+  const { mount, animatedStyle: layoutAnimatedStyle } = useLayoutAnimation();
+  const { start: startFloating, animatedStyle: floatingAnimatedStyle } = useFloatingAnimation(
+    8, // amplitude
+    3000 // duration
+  );
+
+  useEffect(() => {
+    mount();
+    startFloating();
+  }, [mount, startFloating]);
 
   return (
-    <View style={styles.container}>
-      <Image source={image} style={styles.image} resizeMode="contain" />
+    <Animated.View style={[styles.container, layoutAnimatedStyle]}>
+      <Animated.View style={[styles.imageContainer, floatingAnimatedStyle]}>
+        <AnimatedImage source={image} style={styles.image} resizeMode="contain" />
+      </Animated.View>
       <ThemedText type="h4" style={styles.title}>
         {title}
       </ThemedText>
@@ -28,7 +45,7 @@ export function EmptyState({ image, title, subtitle }: EmptyStateProps) {
           {subtitle}
         </ThemedText>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -39,10 +56,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: Spacing["3xl"],
   },
-  image: {
+  imageContainer: {
     width: 180,
     height: 180,
     marginBottom: Spacing.xl,
+  },
+  image: {
+    width: 180,
+    height: 180,
   },
   title: {
     textAlign: "center",
