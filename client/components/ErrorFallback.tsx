@@ -12,7 +12,7 @@ import { Feather } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing, BorderRadius, Fonts } from "@/constants/theme";
+import { Spacing, BorderRadius, Fonts, Shadows } from "@/constants/theme";
 
 export type ErrorFallbackProps = {
   error: Error;
@@ -27,7 +27,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
     try {
       await reloadAppAsync();
     } catch (restartError) {
-      console.error("Failed to restart app:", restartError);
+      if (__DEV__) console.error("Failed to restart app:", restartError);
       resetError();
     }
   };
@@ -52,6 +52,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
               opacity: pressed ? 0.8 : 1,
             },
           ]}
+          accessibilityLabel="Show error details"
+          accessibilityRole="button"
         >
           <Feather name="alert-circle" size={20} color={theme.text} />
         </Pressable>
@@ -76,6 +78,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
               transform: [{ scale: pressed ? 0.98 : 1 }],
             },
           ]}
+          accessibilityLabel="Try again"
+          accessibilityRole="button"
         >
           <ThemedText
             type="body"
@@ -105,6 +109,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
                     styles.closeButton,
                     { opacity: pressed ? 0.6 : 1 },
                   ]}
+                  accessibilityLabel="Close error details"
+                  accessibilityRole="button"
                 >
                   <Feather name="x" size={24} color={theme.text} />
                 </Pressable>
@@ -185,14 +191,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing["2xl"],
     minWidth: 200,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...Shadows.card,
   },
   buttonText: {
     fontWeight: "600",
