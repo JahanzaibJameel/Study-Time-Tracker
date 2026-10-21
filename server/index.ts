@@ -14,27 +14,28 @@ declare module "http" {
 }
 
 function setupCors(app: express.Application) {
+  const ALLOWED_ORIGINS = new Set<string>();
+
+  if (process.env.REPLIT_DEV_DOMAIN) {
+    ALLOWED_ORIGINS.add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+  }
+
+  if (process.env.REPLIT_DOMAINS) {
+    process.env.REPLIT_DOMAINS.split(",").forEach((d: string) => {
+      ALLOWED_ORIGINS.add(`https://${d.trim()}`);
+    });
+  }
+
+  // Explicit localhost origins for development
+  ALLOWED_ORIGINS.add("http://localhost:8081");
+  ALLOWED_ORIGINS.add("http://127.0.0.1:8081");
+  ALLOWED_ORIGINS.add("http://localhost:19006");
+  ALLOWED_ORIGINS.add("http://127.0.0.1:19006");
+
   app.use((req, res, next) => {
-    const origins = new Set<string>();
-
-    if (process.env.REPLIT_DEV_DOMAIN) {
-      origins.add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
-    }
-
-    if (process.env.REPLIT_DOMAINS) {
-      process.env.REPLIT_DOMAINS.split(",").forEach((d) => {
-        origins.add(`https://${d.trim()}`);
-      });
-    }
-
     const origin = req.header("origin");
 
-    // Allow localhost origins for Expo web development (any port)
-    const isLocalhost =
-      origin?.startsWith("http://localhost:") ||
-      origin?.startsWith("http://127.0.0.1:");
-
-    if (origin && (origins.has(origin) || isLocalhost)) {
+    if (origin && ALLOWED_ORIGINS.has(origin)) {
       res.header("Access-Control-Allow-Origin", origin);
       res.header(
         "Access-Control-Allow-Methods",
