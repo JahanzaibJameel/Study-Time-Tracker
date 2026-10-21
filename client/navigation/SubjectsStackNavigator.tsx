@@ -1,8 +1,11 @@
 import React from "react";
 import { Pressable } from "react-native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
 import { Feather } from "@expo/vector-icons";
 
 import SubjectsScreen from "@/screens/SubjectsScreen";
@@ -27,6 +30,8 @@ function AddSubjectButton() {
       onPress={() => navigation.navigate("AddSubject")}
       style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
       testID="button-add-subject"
+      accessibilityLabel="Add new subject"
+      accessibilityRole="button"
     >
       <Feather name="plus" size={24} color={theme.text} />
     </Pressable>
