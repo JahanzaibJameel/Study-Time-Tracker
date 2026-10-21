@@ -1,54 +1,86 @@
 import { Platform } from "react-native";
 
-// StudyBuddy color palette based on design guidelines
-const primaryCyan = "#A8DADC";
-const secondaryCream = "#F1FAEE";
-const deepBlue = "#1D3557";
-const mediumBlue = "#457B9D";
-const softGreen = "#90D5A5";
-const warmYellow = "#FFC857";
+export interface ThemeColors {
+  text: string;
+  textSecondary: string;
+  buttonText: string;
+  tabIconDefault: string;
+  tabIconSelected: string;
+  link: string;
+  primary: string;
+  secondary: string;
+  success: string;
+  warning: string;
+  error: string;
+  backgroundRoot: string;
+  backgroundDefault: string;
+  backgroundSecondary: string;
+  backgroundTertiary: string;
+  cardBackground: string;
+  progressBackground: string;
+  progressFill: string;
+  border: string;
+}
 
-export const Colors = {
+// Modern aesthetic color palette inspired by contemporary UI design
+const primaryBlue = "#3B82F6";           // Modern blue
+const secondaryTeal = "#14B8A6";        // Vibrant teal
+const tertiaryCoral = "#F97316";         // Warm coral
+const quaternaryIndigo = "#6366F1";      // Indigo
+const successGreen = "#10B981";          // Clean green
+const warningAmber = "#F59E0B";          // Warm amber
+const deepNavy = "#1E293B";              // Dark navy for text
+const slateGray = "#64748B";             // Medium gray for secondary text
+const veryLightGray = "#F8FAFC";         // Near-white for backgrounds
+const lightGray = "#E2E8F0";             // Light gray for borders
+const white = "#FFFFFF";                  // Pure white
+const black = "#000000";                  // Pure black
+const surfaceLight = "#FAFBFC";           // Light surface
+const surfaceDark = "#0F172A";            // Dark surface
+
+export const Colors: { light: ThemeColors; dark: ThemeColors } = {
   light: {
-    text: deepBlue,
-    textSecondary: mediumBlue,
-    buttonText: "#FFFFFF",
-    tabIconDefault: mediumBlue,
-    tabIconSelected: deepBlue,
-    link: primaryCyan,
-    primary: primaryCyan,
-    secondary: secondaryCream,
-    success: softGreen,
-    warning: warmYellow,
-    backgroundRoot: "#FFFFFF",
-    backgroundDefault: secondaryCream,
-    backgroundSecondary: "#E8F4F8",
-    backgroundTertiary: primaryCyan,
-    cardBackground: secondaryCream,
-    progressBackground: "#E0E0E0",
-    progressFill: primaryCyan,
-    border: "#D0D0D0",
-  },
-  dark: {
-    text: secondaryCream,
-    textSecondary: "#9BB5C4",
-    buttonText: "#FFFFFF",
-    tabIconDefault: "#9BB5C4",
-    tabIconSelected: primaryCyan,
-    link: primaryCyan,
-    primary: primaryCyan,
-    secondary: "#2D4564",
-    success: softGreen,
-    warning: warmYellow,
-    backgroundRoot: deepBlue,
-    backgroundDefault: "#2D4564",
-    backgroundSecondary: "#3D5574",
-    backgroundTertiary: "#4D6584",
-    cardBackground: "#2D4564",
-    progressBackground: "#3D5574",
-    progressFill: primaryCyan,
-    border: "#3D5574",
-  },
+    text: deepNavy,
+    textSecondary: slateGray,
+    buttonText: white,
+    tabIconDefault: slateGray,
+    tabIconSelected: primaryBlue,
+    link: secondaryTeal,
+    primary: primaryBlue,
+    secondary: secondaryTeal,
+  success: successGreen,
+  warning: warningAmber,
+  error: "#EF4444",
+  backgroundRoot: veryLightGray,
+  backgroundDefault: white,
+  backgroundSecondary: surfaceLight,
+  backgroundTertiary: "#E0F2FE", // Light blue background
+  cardBackground: white,
+  progressBackground: lightGray,
+  progressFill: primaryBlue,
+  border: lightGray,
+},
+dark: {
+  text: surfaceLight,
+  textSecondary: "#94A3B8",
+  buttonText: white,
+  tabIconDefault: "#94A3B8",
+  tabIconSelected: secondaryTeal,
+  link: secondaryTeal,
+  primary: primaryBlue,
+  secondary: quaternaryIndigo,
+  success: successGreen,
+  warning: warningAmber,
+  error: "#F87171",
+  backgroundRoot: deepNavy,
+  backgroundDefault: "#1E293B",
+  backgroundSecondary: "#334155",
+  backgroundTertiary: "#475569",
+  cardBackground: "#1E293B",
+  progressBackground: "#334155",
+  progressFill: secondaryTeal,
+  border: "#475569",
+},
 };
 
 export const Spacing = {
@@ -61,31 +93,34 @@ export const Spacing = {
   "3xl": 32,
   "4xl": 40,
   "5xl": 48,
+  "6xl": 64,
   inputHeight: 48,
   buttonHeight: 52,
+  section: 24,
+  card: 20,
 };
 
 export const BorderRadius = {
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 24,
-  xl: 30,
-  "2xl": 40,
-  "3xl": 50,
+  xs: 6,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  "2xl": 32,
+  "3xl": 40,
   full: 9999,
 };
 
 export const Typography = {
   h1: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 36,
+    lineHeight: 44,
     fontWeight: "700" as const,
   },
   h2: {
-    fontSize: 28,
-    lineHeight: 36,
-    fontWeight: "700" as const,
+    fontSize: 30,
+    lineHeight: 38,
+    fontWeight: "600" as const,
   },
   h3: {
     fontSize: 24,
@@ -116,39 +151,91 @@ export const Typography = {
 
 export const Fonts = Platform.select({
   ios: {
-    sans: "system-ui",
-    serif: "ui-serif",
-    rounded: "ui-rounded",
-    mono: "ui-monospace",
+    sans: "SF Pro Text",
+    serif: "Georgia",
+    rounded: "SF Pro Rounded",
+    mono: "Courier New",
   },
   default: {
-    sans: "normal",
-    serif: "serif",
-    rounded: "normal",
-    mono: "monospace",
+    sans: "Inter, system-ui, -apple-system, sans-serif",
+    serif: "Merriweather, Georgia, serif",
+    rounded: "Inter, system-ui, -apple-system, sans-serif",
+    mono: "Fira Code, Monaco, monospace",
   },
   web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded:
-      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
+    sans: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    serif: "Merriweather, Georgia, 'Times New Roman', serif",
+    rounded: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
 
+export const TimerSizes = {
+  container: 240,
+  fontSize: 56,
+  handThickness: 3,
+};
+
 export const Shadows = {
-  card: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  small: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
+  none: {},
+  small: Platform.select({
+    web: {
+      boxShadow: "0 1px 4px rgba(0, 0, 0, 0.05)",
+    },
+    default: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+  }),
+  card: Platform.select({
+    web: {
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.12)",
+    },
+    default: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+  }),
+  medium: Platform.select({
+    web: {
+      boxShadow: "0 3px 6px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.14)",
+    },
+    default: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+  }),
+  large: Platform.select({
+    web: {
+      boxShadow: "0 6px 12px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.18)",
+    },
+    default: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.15,
+      shadowRadius: 16,
+      elevation: 10,
+    },
+  }),
+  button: Platform.select({
+    web: {
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+    },
+    default: {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+  }),
 };
