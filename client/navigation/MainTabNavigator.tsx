@@ -30,9 +30,13 @@ export default function MainTabNavigator() {
           backgroundColor: Platform.select({
             ios: "transparent",
             android: theme.backgroundRoot,
+            web: theme.backgroundRoot,
           }),
           borderTopWidth: 0,
-          elevation: 0,
+          ...Platform.select({
+            web: { boxShadow: "0 -1px 4px rgba(0, 0, 0, 0.05)" },
+            default: { elevation: 0 },
+          }),
         },
         tabBarBackground: () =>
           Platform.OS === "ios" ? (
