@@ -4,10 +4,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius } from "@/constants/theme";
+import { BorderRadius, ThemeColors } from "@/constants/theme";
+import { useReducedMotionPreference } from "@/lib/animations";
 
 interface ProgressBarProps {
   progress: number; // 0 to 1
@@ -18,13 +20,19 @@ interface ProgressBarProps {
 export function ProgressBar({ progress, height = 8, style }: ProgressBarProps) {
   const { theme } = useTheme();
   const animatedProgress = useSharedValue(0);
+  const reducedMotion = useReducedMotionPreference();
 
   useEffect(() => {
-    animatedProgress.value = withSpring(Math.min(Math.max(progress, 0), 1), {
-      damping: 15,
-      stiffness: 100,
-    });
-  }, [progress]);
+    const clampedProgress = Math.min(Math.max(progress, 0), 1);
+    if (reducedMotion) {
+      animatedProgress.value = clampedProgress;
+    } else {
+      animatedProgress.value = withSpring(clampedProgress, {
+        damping: 15,
+        stiffness: 100,
+      });
+    }
+  }, [progress, animatedProgress, reducedMotion]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: `${animatedProgress.value * 100}%`,
@@ -51,11 +59,11 @@ export function ProgressBar({ progress, height = 8, style }: ProgressBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: BorderRadius.full,
+    borderRadius: BorderRadius.md,
     overflow: "hidden",
   },
   fill: {
     height: "100%",
-    borderRadius: BorderRadius.full,
+    borderRadius: BorderRadius.md,
   },
 });
