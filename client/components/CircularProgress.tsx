@@ -1,16 +1,16 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Platform } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import Animated, {
   useAnimatedProps,
   useSharedValue,
   withSpring,
-  useEffect as useAnimatedEffect,
 } from "react-native-reanimated";
 
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
 import { formatMinutes } from "@/lib/storage";
+import { useReducedMotionPreference } from "@/lib/animations";
 
 interface CircularProgressProps {
   current: number;
@@ -28,6 +28,7 @@ export function CircularProgress({
   strokeWidth = 12,
 }: CircularProgressProps) {
   const { theme } = useTheme();
+  const reducedMotion = useReducedMotionPreference();
   const progress = useSharedValue(0);
 
   const radius = (size - strokeWidth) / 2;
@@ -36,11 +37,15 @@ export function CircularProgress({
 
   React.useEffect(() => {
     const targetProgress = goal > 0 ? Math.min(current / goal, 1) : 0;
-    progress.value = withSpring(targetProgress, {
-      damping: 15,
-      stiffness: 80,
-    });
-  }, [current, goal]);
+    if (reducedMotion) {
+      progress.value = targetProgress;
+    } else {
+      progress.value = withSpring(targetProgress, {
+        damping: 15,
+        stiffness: 80,
+      });
+    }
+  }, [current, goal, progress, reducedMotion]);
 
   const animatedProps = useAnimatedProps(() => ({
     strokeDashoffset: circumference * (1 - progress.value),
@@ -48,9 +53,21 @@ export function CircularProgress({
 
   const percentage = goal > 0 ? Math.round((current / goal) * 100) : 0;
 
+  // On web, rotate the SVG container instead of using origin prop
+  const svgStyle = Platform.select({
+    web: { transform: [{ rotate: "-90deg" }], transformOrigin: "center" },
+    default: {},
+  });
+
+  // On native, use the origin prop for proper rotation center
+  const circleOrigin = Platform.select({
+    web: undefined,
+    default: `${center}, ${center}`,
+  });
+
   return (
     <View style={[styles.container, { width: size, height: size }]}>
-      <Svg width={size} height={size}>
+      <Svg width={size} height={size} style={svgStyle}>
         {/* Background circle */}
         <Circle
           cx={center}
@@ -71,8 +88,8 @@ export function CircularProgress({
           strokeDasharray={circumference}
           animatedProps={animatedProps}
           strokeLinecap="round"
-          rotation="-90"
-          origin={`${center}, ${center}`}
+          rotation={Platform.OS === "web" ? "0" : "-90"}
+          origin={circleOrigin}
         />
       </Svg>
       <View style={styles.textContainer}>
